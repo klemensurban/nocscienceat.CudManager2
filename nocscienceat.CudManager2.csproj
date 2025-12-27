@@ -10,16 +10,15 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageProjectUrl>https://github.com/klemensurban/nocscienceat.CudManager2</PackageProjectUrl>
     <Authors>Klemens Urban</Authors>
     <Company>0x4b55 Software Solutiuons</Company>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>
       Lightweight C# utility for comparing two `IEnumerable` sequences and determining which items should be created, updated, deleted, or are already in sync. Targets .NET Standard 2.0 and uses C# 10
     </Description>
   </PropertyGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe&quot; sign /n &quot;Bundesministerium für Bildung, Wissenschaft und Forschung&quot; /sha1 8634c35c8d95fee07c19b6e18c568ed1d048fe09 /t http://timestamp.sectigo.com /fd SHA256 &quot;$(TargetPath)&quot;&#xD;&#xA;" />
-  </Target>
 
   <ItemGroup>
     <PackageReference Include="IsExternalInit" Version="1.0.3">
