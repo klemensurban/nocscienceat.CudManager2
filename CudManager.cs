@@ -34,15 +34,15 @@ public class CudManager<TKey, TSourceItem, TSync2Item> : AbstractCudManager<TKey
             {
                 TSync2Item syncItem = Sync2ItemsDictionary[sourceItemKey];
 
-                ComparisonResult comparison = _cudDataAdapter.Compare(sourceItem, syncItem);
+                ComparisonResult<TSync2Item> comparison = _cudDataAdapter.Compare(sourceItem, syncItem);
                 switch (comparison)
                 {
-                    case ComparisonResult.IsEqual:
+                    case ComparisonResult<TSync2Item>.IsEqual:
                         InSync.Add(new ItemLink(sourceItem, syncItem));
                         break;
 
-                    case ComparisonResult.DiffersBy differsBy:
-                        ToUpdate.Add(new ItemLinkUpdate(sourceItem, syncItem, differsBy.Properties));
+                    case ComparisonResult<TSync2Item>.DiffersBy differsBy:
+                        ToUpdate.Add(new ItemLinkUpdate(sourceItem, syncItem, differsBy.SyncItemUpdated, differsBy.Properties));
                         break;
                 }
 

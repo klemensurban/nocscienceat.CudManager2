@@ -48,10 +48,12 @@ public abstract class AbstractCudManager<TKey, TSourceItem, TSync2Item>
     public class ItemLinkUpdate : ItemLink
     {
         public List<string> DifferingProperties { get; }
+        public TSync2Item Sync2ItemUpdated { get; }
 
-        public ItemLinkUpdate(TSourceItem sourceItem, TSync2Item sync2Item, List<string> differingProperties) : base(sourceItem, sync2Item)
+        public ItemLinkUpdate(TSourceItem sourceItem, TSync2Item sync2Item, TSync2Item sync2ItemUpdated, List<string> differingProperties) : base(sourceItem, sync2Item)
         {
             DifferingProperties = differingProperties;
+            Sync2ItemUpdated = sync2ItemUpdated;
         }
     }
 
