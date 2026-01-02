@@ -24,3 +24,69 @@ Lightweight C# utility for comparing two `IEnumerable` sequences and determining
 ## Installation
 
 dotnet add package nocscienceat.CudManager2
+
+## Usage (single key) 
+```csharp
+// implementig the ICudDataAdapter for your types
+public sealed class PersonAdapter : ICudDataAdapter<int, PersonDto, PersonEntity>
+{
+    public int GetKeyFromSourceItem(PersonDto dto) => dto.Id;
+    public int GetKeyFromSync2Item(PersonEntity entity) => entity.Id;
+
+    public ComparisonResult Compare<PersonEntity>(PersonDto dto, PersonEntity entity)
+    {
+        var diffs = new List<string>();
+        PersonEntity sync2ItemUpdated = new(); // PersonEntity sync2ItemUpdated = new(entity);  // if a copy constructor is available
+
+        if (dto.Name != entity.Name) 
+        {
+            diffs.Add(nameof(PersonEntity.Name));
+            sync2ItemUpdated.Name = dto.Name;
+        }
+
+        if (dto.Email != entity.Email)
+        {
+            diffs.Add(nameof(PersonEntity.Email));
+            sync2ItemUpdated.Email = dto.Email;
+        }
+
+        return diffs.Count == 0
+            ? new ComparisonResult.IsEqual()
+            : new ComparisonResult.DiffersBy { Properties = diffs, SyncItemUpdated = sync2ItemUpdated };
+    }
+}
+
+// code from the 'synchronization' context
+
+var inboundDtos = _personDtoService.GetAll(); // IEnumerable<PersonDto>
+var existingEntities = _personEntityService.GetAll(); // IEnumerable<PersonEntity>
+
+var manager = new CudManager<int, PersonDto, PersonEntity>(
+    new PersonAdapter(),
+    sourceItems: inboundDtos,
+    sync2Items: existingEntities);
+
+// Trigger comparison lazily via the exposed properties
+foreach (var toCreate in manager.Items2Create) { /* insert */ }
+foreach (var update in manager.Items2Update) { /* update update.Sync2Item with update.SourceItem */ }
+foreach (var toDelete in manager.Items2Delete) { /* delete */ }
+```
+
+
+## Applying updates
+
+```csharp
+foreach (var update in manager.Items2Update)
+{
+    // Since the assumed PersonEntityService usually only works with PersonEntity instances (it knows nothing about PersonDto), 
+    // we call its hypothetical update method with the original PersonEntity item and the PersonEntity item with the updated Properties as well as the list of differing properties.
+
+    _personEntityService.Update(update.Sync2Item, update.Sync2ItemUpdated, update.DifferingProperties);
+    ...
+}
+```
+
+## Notes
+- Results are computed lazily when accessing the public properties; repeated access will not recompute.
+- Duplicate source keys are skipped to avoid ambiguous updates.
+
