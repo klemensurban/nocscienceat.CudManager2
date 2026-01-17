@@ -64,4 +64,50 @@ public class CudManagerPersonTests
         Assert.Contains(toDelete, x => x is {Id: 25, Surname: "Neumann", GivenName: "Christian"});
         Assert.Contains(toDelete, x => x is {Id: 9, Surname: "Schneider", GivenName: "Peter"});
     }
+
+    [Fact]
+    public void CudManager_ThrowsOnDuplicateKeysInSourceItems()
+    {
+        // Arrange
+        PersonTestAdapter adapter = new();
+        CudManager<int, Person, Person> manager = new(adapter, PersonTestData.AlternativeSourcePersons, PersonTestData.DestinationPersons);
+        manager.ThrowOnDuplicateKeys = true;
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => manager.CheckItems());
+        Assert.Contains("Duplicate key found in source items", exception.Message);
+    }
+
+    [Fact]
+    public void CudManager_ThrowsOnDuplicateKeysInSync2Items()
+    {
+        // Arrange
+        PersonTestAdapter adapter = new();
+        CudManager<int, Person, Person> manager = new(adapter, PersonTestData.SourcePersons, PersonTestData.AlternativeDestinationPersons);
+        manager.ThrowOnDuplicateKeys = true;
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => manager.CheckItems());
+        Assert.Contains("Duplicate key found in sync2 items", exception.Message);
+    }
+
+    [Fact]
+    public void CudManager_DoesNotThrowOnDuplicateKeysInSourceItemsWhenThrowOnDuplicateKeysIsFalse()
+    {
+        // Arrange
+        PersonTestAdapter adapter = new();
+        CudManager<int, Person, Person> manager = new(adapter, PersonTestData.AlternativeSourcePersons, PersonTestData.DestinationPersons);
+        manager.ThrowOnDuplicateKeys = false;
+        // Act & Assert
+        manager.CheckItems(); // Should not throw
+    }
+
+    [Fact]
+    public void CudManager_DoesNotThrowOnDuplicateKeysInSync2ItemsWhenThrowOnDuplicateKeysIsFalse()
+    {
+        // Arrange
+        PersonTestAdapter adapter = new();
+        CudManager<int, Person, Person> manager = new(adapter, PersonTestData.SourcePersons, PersonTestData.AlternativeDestinationPersons);
+        manager.ThrowOnDuplicateKeys = false;
+        // Act & Assert
+        manager.CheckItems(); // Should not throw
+    }
 }

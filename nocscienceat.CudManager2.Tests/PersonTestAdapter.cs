@@ -9,8 +9,8 @@ public sealed class PersonTestAdapter : ICudDataAdapter<int, Person, Person>
 
     public ComparisonResult<Person> Compare(Person source, Person entity)
     {
-        var diffs = new List<string>();
-        var updated = entity;
+        List<string> diffs = new();
+        Person updated = entity;
 
         if (source.Surname != entity.Surname)
         {

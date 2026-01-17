@@ -1,4 +1,5 @@
-﻿using nocscienceat.CudManager2.Models;
+﻿using System;
+using nocscienceat.CudManager2.Models;
 using System.Collections.Generic;
 
 namespace nocscienceat.CudManager2;
@@ -6,10 +7,16 @@ namespace nocscienceat.CudManager2;
 public class CudManager<TKey, TSourceItem, TSync2Item> : AbstractCudManager<TKey, TSourceItem, TSync2Item>
 {
     private readonly ICudDataAdapter<TKey, TSourceItem, TSync2Item> _cudDataAdapter;
+    private bool _throwOnDuplicateKeys;
 
     public CudManager(ICudDataAdapter<TKey, TSourceItem, TSync2Item> cudDataAdapter, IEnumerable<TSourceItem> sourceItems, IEnumerable<TSync2Item> sync2Items) : base(sourceItems, sync2Items)
     {
         _cudDataAdapter = cudDataAdapter;
+    }
+
+    public bool ThrowOnDuplicateKeys
+    {
+        set => _throwOnDuplicateKeys = value;
     }
 
     public override void CheckItems()
@@ -18,7 +25,12 @@ public class CudManager<TKey, TSourceItem, TSync2Item> : AbstractCudManager<TKey
         foreach (TSync2Item sync2Item in Sync2Items)
         {
             TKey sync2ItemKey = _cudDataAdapter.GetKeyFromSync2Item(sync2Item);
-            if (Sync2ItemsDictionary.ContainsKey(sync2ItemKey)) continue;
+            if (Sync2ItemsDictionary.ContainsKey(sync2ItemKey))
+            {
+                if (_throwOnDuplicateKeys)
+                    throw new ArgumentException("Duplicate key found in sync2 items", nameof(sync2ItemKey));
+                continue;
+            }
             Sync2ItemsDictionary.Add(sync2ItemKey, sync2Item);
             sync2ItemsCount++;
         }
@@ -27,7 +39,11 @@ public class CudManager<TKey, TSourceItem, TSync2Item> : AbstractCudManager<TKey
         {
             TKey sourceItemKey = _cudDataAdapter.GetKeyFromSourceItem(sourceItem);
             if (sourceItemKeysDictionary.ContainsKey(sourceItemKey))
+            {
+                if (_throwOnDuplicateKeys)
+                    throw new ArgumentException("Duplicate key found in source items", nameof(sourceItemKey));
                 continue;
+            }
             sourceItemKeysDictionary.Add(sourceItemKey, true);
             sourceItemsCount++;
             if (Sync2ItemsDictionary.ContainsKey(sourceItemKey))

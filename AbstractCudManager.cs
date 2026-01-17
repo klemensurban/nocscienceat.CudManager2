@@ -13,7 +13,7 @@ public abstract class AbstractCudManager<TKey, TSourceItem, TSync2Item>
     internal int sourceItemsCount;
     internal int sync2ItemsCount;
     internal bool itemsChecked;
-
+    
     protected AbstractCudManager(IEnumerable<TSourceItem> sourceItems, IEnumerable<TSync2Item> sync2Items)
     {
         SourceItems = sourceItems;
