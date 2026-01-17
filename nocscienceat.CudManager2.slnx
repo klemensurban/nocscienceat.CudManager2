@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="nocscienceat.CudManager2.csproj" />
+  <Project Path="nocscienceat.CudManager2.Tests/nocscienceat.CudManager2.Tests.csproj" />
+</Solution>
